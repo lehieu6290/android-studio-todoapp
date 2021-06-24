@@ -81,7 +81,7 @@ class FormDialog(private val todo: Todo? = null): DialogFragment() {
     private fun checkForm(): Boolean{
         val title = formView.findViewById<AppCompatEditText>(R.id.inputTitle).text.toString()
         if(title == "" || level == -1){
-            Toast.makeText(context, "Vui lòng nhập hết thông tin", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_LONG).show()
             return false
         }
 
