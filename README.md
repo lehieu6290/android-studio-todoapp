@@ -13,4 +13,4 @@ Công việc nào đã hoàn thành (đã được check) thì sẽ bị gạch 
 ## Giao diện form cập nhật công việc
 Nhấn vào công việc cần cập nhật để mở form
 
-![Add Form Image](demo/AddForm.png)
+![Update Form Image](demo/UpdateForm.png)
