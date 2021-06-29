@@ -2,27 +2,29 @@ package com.lth.todolist.view
 
 import android.app.*
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProviders
 import com.lth.todolist.R
-import com.lth.todolist.controller.TodoController
+import com.lth.todolist.viewmodel.TodoViewModel
+import com.lth.todolist.viewmodel.TodoViewModelFactory
 import com.lth.todolist.model.Todo
-import java.util.*
 
 class FormDialog(private val todo: Todo? = null): DialogFragment() {
     private lateinit var formView: View
-
     private var level: Int = -1
+    private lateinit var todoViewModel: TodoViewModel
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogBuilder = AlertDialog.Builder(context)
         formView = LayoutInflater.from(context).inflate(R.layout.form, null)
         initForm()
         dialogBuilder.setView(formView)
+
+        todoViewModel = ViewModelProviders.of(requireActivity(), TodoViewModelFactory(requireContext())).get(TodoViewModel::class.java)
 
         return  dialogBuilder.create()
     }
@@ -91,13 +93,12 @@ class FormDialog(private val todo: Todo? = null): DialogFragment() {
     private fun handleSubmitButtonClick(){
         if(!checkForm()) return
 
-        val todoController = context?.let { TodoController(it) }
         val title = formView.findViewById<AppCompatEditText>(R.id.inputTitle).text.toString()
         val newTodo = Todo(title, level)
         if(todo == null){
-            todoController?.addTodo(newTodo)
+            todoViewModel.addTodo(newTodo)
         }else{
-            todo.id?.let { todoController?.updateTodo(it, newTodo) }
+            todo.id?.let { todoViewModel.updateTodo(it, newTodo) }
         }
 
         dismiss()

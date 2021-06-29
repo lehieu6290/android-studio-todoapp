@@ -1,7 +1,6 @@
 package com.lth.todolist.utils
 
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.lth.todolist.model.Todo
@@ -57,8 +56,16 @@ class Database(context: Context) {
         db.execSQL(query)
     }
 
-    fun selectAll(): Cursor {
-        return db.rawQuery("SELECT * from $TABLE_NAME", null)
+    fun selectAll(): ArrayList<Todo> {
+        val cursor = db.rawQuery("SELECT * from $TABLE_NAME", null)
+        var todos = ArrayList<Todo>()
+
+        while (cursor.moveToNext()){
+            val todo = Todo(cursor.getString(1), cursor.getInt(2), cursor.getInt(0), cursor.getInt(3))
+            todos.add(todo)
+        }
+
+        return todos
     }
 
     private inner class CustomSQLiteOpenHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME,null, DB_VERSION) {
@@ -74,6 +81,8 @@ class Database(context: Context) {
                     + TABLE_ROW_STATUS
                     + " integer default 0);")
             db.execSQL(newTableQueryString)
+
+            db.close()
         }
 
         override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

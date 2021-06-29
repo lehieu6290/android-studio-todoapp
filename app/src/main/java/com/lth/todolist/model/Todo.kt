@@ -1,8 +1,5 @@
 package com.lth.todolist.model
 
-import java.util.*
-
-
 class Todo(val title: String, val level: Int, val id: Int? = null, val status: Int? = null) {
 
     companion object{

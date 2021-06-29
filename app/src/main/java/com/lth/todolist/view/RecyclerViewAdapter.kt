@@ -8,14 +8,16 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.lth.todolist.R
-import com.lth.todolist.controller.TodoController
+import com.lth.todolist.viewmodel.TodoViewModel
+import com.lth.todolist.viewmodel.TodoViewModelFactory
 import com.lth.todolist.model.Todo
 
-class RecyclerViewAdapter(private val todos: ArrayList<Todo>, val mainActivity: MainActivity): RecyclerView.Adapter<RecyclerViewAdapter.TodoItemHolder>() {
+class RecyclerViewAdapter(val mainActivity: MainActivity): RecyclerView.Adapter<RecyclerViewAdapter.TodoItemHolder>() {
 
     inner class TodoItemHolder(view: View): RecyclerView.ViewHolder(view){
         val textViewTitle: TextView = view.findViewById(R.id.textViewTitle)
@@ -25,13 +27,24 @@ class RecyclerViewAdapter(private val todos: ArrayList<Todo>, val mainActivity: 
         val checkBoxStatus: CheckBox = view.findViewById(R.id.checkBoxStatus)
     }
 
+    private var todos: ArrayList<Todo> = arrayListOf()
+    private var todoViewModel: TodoViewModel = ViewModelProviders.of(mainActivity, TodoViewModelFactory(mainActivity)).get(TodoViewModel::class.java)
+
+    init {
+        todos = todoViewModel.todos.value!!
+
+        todoViewModel.todos.observe(mainActivity, Observer<ArrayList<Todo>>{
+            todos = todoViewModel.todos.value!!
+            notifyDataSetChanged()
+        })
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoItemHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.todo_item, parent, false)
         return TodoItemHolder(view)
     }
 
     override fun onBindViewHolder(holder: TodoItemHolder, position: Int) {
-        val todoController = TodoController(mainActivity)
         val todo = todos[position]
         holder.textViewTitle.text = todo.title
 
@@ -67,13 +80,13 @@ class RecyclerViewAdapter(private val todos: ArrayList<Todo>, val mainActivity: 
         }
 
         holder.buttonDelete.setOnClickListener {
-            todo.id?.let { it -> todoController.deleteTodo(it) }
+            todo.id?.let { it -> todoViewModel.deleteTodo(it) }
         }
 
         holder.checkBoxStatus.setOnCheckedChangeListener { buttonView, isChecked ->
             val status = if(isChecked) Todo.COMPLETE else Todo.DOING
 
-            todo.id?.let { todoController.updateStatus(it, status) }
+            todo.id?.let { todoViewModel.updateStatus(it, status) }
         }
     }
 
