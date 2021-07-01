@@ -9,9 +9,9 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProviders
 import com.lth.todolist.R
+import com.lth.todolist.room.Todo
 import com.lth.todolist.viewmodel.TodoViewModel
 import com.lth.todolist.viewmodel.TodoViewModelFactory
-import com.lth.todolist.model.Todo
 
 class FormDialog(private val todo: Todo? = null): DialogFragment() {
     private lateinit var formView: View
@@ -94,11 +94,13 @@ class FormDialog(private val todo: Todo? = null): DialogFragment() {
         if(!checkForm()) return
 
         val title = formView.findViewById<AppCompatEditText>(R.id.inputTitle).text.toString()
-        val newTodo = Todo(title, level)
+
         if(todo == null){
+            val newTodo = Todo(title = title, level = level)
             todoViewModel.addTodo(newTodo)
         }else{
-            todo.id?.let { todoViewModel.updateTodo(it, newTodo) }
+            val newTodo = Todo(id = todo.id, title = title, level = level)
+            todoViewModel.updateTodo(newTodo)
         }
 
         dismiss()

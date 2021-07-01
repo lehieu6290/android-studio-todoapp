@@ -13,11 +13,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.lth.todolist.R
+import com.lth.todolist.room.Todo
 import com.lth.todolist.viewmodel.TodoViewModel
 import com.lth.todolist.viewmodel.TodoViewModelFactory
-import com.lth.todolist.model.Todo
 
-class RecyclerViewAdapter(val mainActivity: MainActivity): RecyclerView.Adapter<RecyclerViewAdapter.TodoItemHolder>() {
+class RecyclerViewAdapter(private val mainActivity: MainActivity): RecyclerView.Adapter<RecyclerViewAdapter.TodoItemHolder>() {
 
     inner class TodoItemHolder(view: View): RecyclerView.ViewHolder(view){
         val textViewTitle: TextView = view.findViewById(R.id.textViewTitle)
@@ -27,13 +27,13 @@ class RecyclerViewAdapter(val mainActivity: MainActivity): RecyclerView.Adapter<
         val checkBoxStatus: CheckBox = view.findViewById(R.id.checkBoxStatus)
     }
 
-    private var todos: ArrayList<Todo> = arrayListOf()
+    private var todos: List<Todo> = arrayListOf()
     private var todoViewModel: TodoViewModel = ViewModelProviders.of(mainActivity, TodoViewModelFactory(mainActivity)).get(TodoViewModel::class.java)
 
     init {
         todos = todoViewModel.todos.value!!
 
-        todoViewModel.todos.observe(mainActivity, Observer<ArrayList<Todo>>{
+        todoViewModel.todos.observe(mainActivity, Observer<List<Todo>>{
             todos = todoViewModel.todos.value!!
             notifyDataSetChanged()
         })
@@ -80,13 +80,14 @@ class RecyclerViewAdapter(val mainActivity: MainActivity): RecyclerView.Adapter<
         }
 
         holder.buttonDelete.setOnClickListener {
-            todo.id?.let { it -> todoViewModel.deleteTodo(it) }
+            todoViewModel.deleteTodo(todo)
         }
 
         holder.checkBoxStatus.setOnCheckedChangeListener { buttonView, isChecked ->
             val status = if(isChecked) Todo.COMPLETE else Todo.DOING
+            val todoUpdate = Todo(todo.id, todo.title, todo.level, status)
 
-            todo.id?.let { todoViewModel.updateStatus(it, status) }
+            todoViewModel.updateStatus(todoUpdate)
         }
     }
 
